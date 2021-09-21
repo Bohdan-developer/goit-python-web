@@ -1,0 +1,19 @@
+@startuml
+
+User -> (Start app Assistant)
+(Start app Assistant) -> (OPERATIONS)
+(OPERATIONS) -- (ADD INFO)
+(OPERATIONS) -- (CHANGE INFO)
+(OPERATIONS) -- (Notes&Tags)
+(OPERATIONS) -- (Additionally)
+(ADD INFO) ---> (add contact, add address, add email, add birthday)
+(CHANGE INFO) --> (change contact, find contact, show contacts, delete contact)
+(Notes&Tags) ---> (create note, change note, delete note, change tag, read note)
+(Additionally) --> (near birthday, search by tags, search by text, sorting files, show all tags)
+(add contact, add address, add email, add birthday) -- (SAVE)
+(change contact, find contact, show contacts, delete contact) -- (SAVE)
+(create note, change note, delete note, change tag, read note) -- (SAVE)
+(near birthday, search by tags, search by text, sorting files, show all tags) -- (SAVE)
+(SAVE) --> (EXIT)
+
+@enduml
