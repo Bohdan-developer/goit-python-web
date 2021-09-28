@@ -405,12 +405,11 @@ def get_handler(operator):
     return OPERATIONS[operator]
 
 
-def main():
+if __name__ == '__main__':
     # Start of the cli
     if os.path.exists('data.json'):
         AB.deserialize()
-    print(
-        'Hello, User! Welcome to our CLI-bot. Enter "help" in case you need to see the commands again')
+    print('Hello, User! Welcome to our CLI-bot. Enter "help" in case you need to see the commands again')
     print(Help.print_info())
 
     while True:
@@ -423,6 +422,6 @@ def main():
         answer = handler()
         print(answer)
 
-
-if __name__ == '__main__':
-    main()
+#
+# if __name__ == '__main__':
+#     main()
