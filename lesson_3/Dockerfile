@@ -1,6 +1,6 @@
-FROM python:3.9.6-slim-bullseye
+FROM python:3.9-slim-buster
 
-WORKDIR app
+WORKDIR /usr/srs/app
 
 RUN pip install pipenv
 
@@ -9,7 +9,7 @@ COPY Pipfile.lock Pipfile.lock
 
 RUN pipenv install --system --deploy
 
-COPY main.py main.py
-COPY AddressBook.py AddressBook.py
+COPY . .
+
 
 CMD python main.py

@@ -68,22 +68,22 @@ class NearbyBirthday(InfoInterface):
         return AB.nearby_birthday(n_days)
 
 
-def add_contact():  # Correction добавил в добавление контакта день рождение с валидацией по дефолту
-    name = input('Enter Name: ')  # Correction отступ после двоеточия
-    phone = input('Enter Phone number: ')  # Correction отступ после двоеточия
+def add_contact(): 
+    name = input('Enter Name: ')  
+    phone = input('Enter Phone number: ')  
     birthday = input('Enter Birthday in format 01.01.1990: ')
     if AB.validate_birthday(birthday) and AB.validate_phone(phone):
         AB.add_contact(name, phone, birthday)
         return f'Contact {name} with phone number {phone} and birthday {birthday} created.'
     else:
-        return f'Incorrect number. Try in format +380123456789'  # Correction для наглядности с +380...
+        return f'Incorrect number. Try in format +380123456789'  
 
 
 def add_email():
-    name = input('Enter Name: ')  # Correction отступ после двоеточия
+    name = input('Enter Name: ')  
     if not AB.contacts.get(name):
         return f'Contact {name} does not exist!'
-    email = input('Enter Email: ')  # Correction отступ после двоеточия
+    email = input('Enter Email: ')  
     if AB.validate_email(email):
         AB.add_email(name, email)
         return f'{name}`s email {email} has been saved'
@@ -92,19 +92,19 @@ def add_email():
 
 
 def add_address():
-    name = input('Enter Name: ')  # Correction отступ после двоеточия
+    name = input('Enter Name: ')  
     if not AB.contacts.get(name):
         return f'Contact {name} does not exist!'
-    address = input('Enter Address: ')  # Correction отступ после двоеточия
+    address = input('Enter Address: ')  
     AB.add_address(name, address)
     return f'{name}`s address is {address}'
 
 
 def add_birthday():
-    name = input('Enter Name: ')  # Correction отступ после двоеточия
+    name = input('Enter Name: ') 
     if not AB.contacts.get(name):
         return f'Contact {name} does not exist!'
-    birthday = input('Enter Birthday in format 01.01.1990: ')  # Correction отступ после двоеточия
+    birthday = input('Enter Birthday in format 01.01.1990: ')  
     print(birthday)
     if AB.validate_birthday(birthday):
         AB.add_birthday(name, birthday)
@@ -114,18 +114,18 @@ def add_birthday():
 
 
 def change_contact():
-    name = input('Enter Name: ')  # Correction отступ после двоеточия
+    name = input('Enter Name: ')  
     if not AB.contacts.get(name):
         return f'Contact {name} does not exist!'
-    address = input('Enter Address: ')  # Correction отступ после двоеточия
-    phone = input('Enter Phone number: ')  # Correction отступ после двоеточия
-    email = input('Enter Email: ')  # Correction отступ после двоеточия
-    birthday = input('Enter Birthday: ')  # Correction отступ после двоеточия
+    address = input('Enter Address: ') 
+    phone = input('Enter Phone number: ')  
+    email = input('Enter Email: ')  
+    birthday = input('Enter Birthday: ')  
     if AB.validate_birthday(birthday) and AB.validate_email(email) and AB.validate_phone(phone):
         AB.change_contact(name, address, phone, email, birthday)
         return f'{name}`s :\n Address: {address}, Phone: {phone}, Email: {email}, Birthday: {birthday}'
     else:
-        return 'Incorrect data (email, phone number or birthday)'  # Correction отступ после data
+        return 'Incorrect data (email, phone number or birthday)' 
 
 
 def find_contact():
@@ -141,8 +141,8 @@ def delete_contact():
 
 
 def create_new_note():
-    tags = input('Enter tags separated by space and starting with "#": ')  # Correction тэгов можно вводить бесконечно
-    note = input('Enter text of your note: ')  # Correction так выглядит проще
+    tags = input('Enter tags separated by space and starting with "#": ')  
+    note = input('Enter text of your note: ')  
     data = f'{tags}\n\n{note}'
     t = str(time.time()).split('.')[0]
     filename = t + ".txt"  # Name would be similar to 1630063227.txt
@@ -151,7 +151,7 @@ def create_new_note():
             file.write(data)
     except IOError:
         print("File not accessible")
-    return f'You have created a note {filename}'  # Correction пользователю так будет приятнее
+    return f'You have created a note {filename}' 
 
 
 def delete_note():
@@ -220,7 +220,7 @@ def tag_search_helper(tag: str, flist: list, filename: str, text: str):
     return flist
 
 
-def tag_search():  # Correction поисправлял регистр функций tag_search и tag_search_helper
+def tag_search():  
     deftags = ['%%%%%%%%%%', '%%%%%%%%%%', '%%%%%%%%%%', '%%%%%%%%%%', '%%%%%%%%%%', '%%%%%%%%%%']
     tags = input('Enter up to six tags separated by space: ')  # Correction Separated by space
     tags = tags.split(' ')
@@ -246,7 +246,7 @@ def tag_search():  # Correction поисправлял регистр функц
             fo.close()
 
     result = Counter(flist)
-    result = OrderedDict(result.most_common())  # Correction Добавил сортировку через OrderedDict
+    result = OrderedDict(result.most_common())  
     if not result:
         return 'No match!'
     else:
@@ -413,7 +413,10 @@ if __name__ == '__main__':
     print(Help.print_info())
 
     while True:
-        command = input('Enter your command: ')
+        try:
+            command = input('Enter your command: ')
+        except:
+            break
         if command == '.' or command == 'exit' or command == 'close':
             AB.serialize()
             print('Goodbye, User!')
