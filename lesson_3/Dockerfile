@@ -11,5 +11,4 @@ RUN pipenv install --system --deploy
 
 COPY . .
 
-
 CMD python main.py

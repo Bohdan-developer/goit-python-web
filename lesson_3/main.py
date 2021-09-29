@@ -415,8 +415,9 @@ if __name__ == '__main__':
     while True:
         try:
             command = input('Enter your command: ')
-        except:
+        except EOFError:
             break
+
         if command == '.' or command == 'exit' or command == 'close':
             AB.serialize()
             print('Goodbye, User!')
