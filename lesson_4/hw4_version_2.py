@@ -76,9 +76,8 @@ def search_file(path_to_sorting, files_list):
 
         for file in files:
             path_file = os.path.join(root, file)
-            # print(f"path_file {path_to_sorting}")
             ignor_dir = path_file.split("\\")
-            # print(ignor_dir[6])
+            
             if not ignor_dir[6] in IGNOR:
                 files_list.append(path_file)
             
@@ -88,27 +87,24 @@ if __name__=="__main__":
 
     files_list = list()
     try:
-        # path_to_sorting = sys.argv[1]
-        path_to_sorting = r"C:\Users\Engineer\Desktop\lesson_4\t"
+        path_to_sorting = sys.argv[1]
+        
     except Exception:
         print("Wrong! Please try again")
 
     
     print(f'Started in {path_to_sorting}')
-    start = time()
+   
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
         ex.submit(search_file, path_to_sorting, files_list)
         ex.submit(sort_file, path_to_sorting, files_list)
-    
-    # search_file(path_to_sorting, files_list)
-    # sort_file(path_to_sorting, files_list)
+   
     
     for root, dirs, files in os.walk(path_to_sorting):
         for folder in dirs:
             folder_path = os.path.join(root, folder)
             remove_folder(folder_path)
-    print(time()-start)
+
     print (f"Sorting files by the specified path {path_to_sorting} completed succesfully!")
    
 
-# 2.55859375 no pull
