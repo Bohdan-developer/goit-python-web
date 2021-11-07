@@ -49,6 +49,7 @@ def sort_file(p, files_list):
             name_folder_archive = file.split(".")
             shutil.unpack_archive(files, p + "\\archives"+ "\\" + name_folder_archive[0])
 
+
 def remove_folder(f):
     if not os.listdir(f):
         os.removedirs(f)
