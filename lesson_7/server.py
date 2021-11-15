@@ -4,7 +4,7 @@ import time
 host = socket.gethostbyname(socket.gethostname())
 port = 8003
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((host, port))
 
 clients = list()
@@ -18,6 +18,7 @@ while True:
         data, addr = sock.recvfrom(1024)
 
         if addr not in clients:
+            print(addr)
             clients.append(addr)
 
         connection_time = time.strftime("%H:%M:%S %d-%m-%Y", time.localtime())
@@ -27,10 +28,10 @@ while True:
 
         for client in clients:
             if addr != client:
-                sock.sendto(data, clients)
+                sock.sendto(data, client)
 
     except KeyboardInterrupt:
         print("\n >>> Server Stopped ")
-        flag_exit = True
+        break
 
 
