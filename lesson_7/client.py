@@ -1,38 +1,61 @@
 import socket
 import threading
+import time
+import sys
 
-server = (socket.gethostbyname(socket.gethostname()), 8000)
-flag_close = True
+
+def send(client_socket, message, server):
+    client_socket.sendto(message, server)
 
 
-def client_receives_msg():
-    global flag_close
-    while flag_close:
+def recv_massage(client_socket):
+    while True:
         try:
-            data = soc.recv(1024)
-            print(data.decode('utf-8'))
-        except:
-            flag_close = False
+            data, addr = client_socket.recvfrom(1024)
+            print(data.decode("utf-8"))
+            time.sleep(0.2)
+        except OSError:
+            break
+        except ConnectionResetError:
+            print("Server is down or no data\nPlease check if the server is enabled\nTry again")
+            client_socket.close()
+            break
 
 
-with socket.socket() as soc:
-    soc.bind(("", 0))
-    soc.connect(server)
-    alias = input("Nickname ")  # Вводим наш псевдоним
-    soc.sendto(("[" + alias + '] Connect to chat').encode('utf-8'), server)  # Уведомляем сервер о подключении
-    potok = threading.Thread(target=client_receives_msg)
-    potok.start()
+def main():
+    SERVER = (socket.gethostbyname(socket.gethostname()), 9000)
+    HOST = socket.gethostbyname(socket.gethostname())
+    PORT = 0
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    client_socket.bind((HOST, PORT))
+    while True:
+        connection = input("Connect to server? Y/N ")
+        if connection.casefold() == "y":
+            client_socket.sendto(b"Connect", SERVER)
+            break
+        elif connection.casefold() == "n":
+            sys.exit(0)
+        else:
+            continue
 
-    while flag_close:
+    thread_recv = threading.Thread(target=recv_massage, args=(client_socket,))
+    thread_recv.start()
+
+    while True:
         try:
-            message = input("Message: ")
-            soc.sendto(("[" + alias + '] ' + message).encode('utf-8'), server)
+            message = input().encode()
+            if len(message) > 0:
+                send(client_socket=client_socket, message=message, server=SERVER)
+            time.sleep(0.2)
         except KeyboardInterrupt:
-            soc.sendto(('[' + alias + '] left chat').encode('utf-8'), server)
-            flag_close = False
+            print("Exit")
+            client_socket.sendto(b"Disconnect", SERVER)
+            client_socket.close()
+            break
+        except (ConnectionAbortedError, ConnectionError, ConnectionRefusedError, ConnectionResetError, OSError):
+            print("Exit")
+            client_socket.close()
+            break
 
-    potok.join()
-
-
-
-
+if __name__ == "__main__":
+    main()

@@ -1,37 +1,53 @@
 import socket
-import time
-
-host = socket.gethostbyname(socket.gethostname())
-port = 8003
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind((host, port))
-
-clients = list()
-print(">>> Server Started")
-
-flag_exit = False
+import threading
 
 
-while True:
-    try:
-        data, addr = sock.recvfrom(1024)
+def print_info(data, addr):
+    print(addr, str(data))
 
-        if addr not in clients:
-            print(addr)
-            clients.append(addr)
 
-        connection_time = time.strftime("%H:%M:%S %d-%m-%Y", time.localtime())
-
-        print(">>> IP:" + addr[0] + " PORT:" + str(addr[1]) + " " + connection_time + " ", end="")
-        print(data.decode("utf-8"))
-
+def send_messega(socket_server, clients, conn, addr, data):
+    if len(clients) != 0:
         for client in clients:
-            if addr != client:
-                sock.sendto(data, client)
-
-    except KeyboardInterrupt:
-        print("\n >>> Server Stopped ")
-        break
+            if client != addr:
+                socket_server.sendto((addr[0] + ":" + str(addr[1])+" ").encode()+data, (client))
 
 
+def listen_socket(socket_server, clients, conn, addr):
+    data = conn
+    print_info(data, addr)
+    send_messega(socket_server, clients, conn,  addr, data)
+
+
+def main():
+
+    HOST = socket.gethostbyname(socket.gethostname())
+    PORT = 9000
+
+    print(f"HOST:{HOST} PORT:{PORT}")
+
+    socket_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    socket_server.bind((HOST, PORT))
+    socket_server.setblocking(10)
+
+    print("Started server")
+
+    clients = list()
+
+    while True:
+        try:
+            conn, addr = socket_server.recvfrom(1024)
+
+            if addr not in clients:
+                clients.append(addr)
+                print("Connected by", addr)
+            thred_listen = threading.Thread(target=listen_socket, args=(socket_server, clients, conn, addr))
+            thred_listen.start()
+        except ConnectionResetError:
+            print("The remote host forcibly dropped the existing connection")
+        except KeyboardInterrupt:
+            print("Stopped server")
+
+
+if __name__ == '__main__':
+    main()
