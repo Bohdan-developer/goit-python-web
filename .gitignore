@@ -9,3 +9,6 @@ lesson_3/.idea/vcs.xml
 .idea/modules.xml
 lesson_7/__pycache__/server.cpython-310.pyc
 .idea/workspace.xml
+.idea/dataSources.local.xml
+.idea/dataSources.xml
+.idea/sqldialects.xml
