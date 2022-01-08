@@ -82,6 +82,7 @@ class AddressBook(UserDict):
                         continue
 
     def delete_contact(self, name):
+        
         self.contacts.pop(name)
 
     def validate_phone(self, phone: str):

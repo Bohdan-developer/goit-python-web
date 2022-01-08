@@ -3,11 +3,11 @@ import shutil
 import time
 from abc import ABC, abstractmethod
 from collections import Counter, OrderedDict
-
+from sqlalchemy.orm import joinedload
 from prettytable import PrettyTable
 
-from Assistant.db import *
-from Assistant.models import *
+from db import *
+from models import *
 
 try:
     from AddressBook import *
@@ -28,13 +28,32 @@ class InfoInterface(ABC):
 class AllContacts(InfoInterface):
     def print_info():
         pretty_contacts = PrettyTable()
-        pretty_contacts.field_names = [
-            'Name', 'Address', 'Phone', 'Email', 'Birthday']
+        pretty_contacts.field_names = ['Name', 'Address', 'Phone', 'Email', 'Birthday']
 
-        for k, v in AB.contacts.items():
-            pretty_contacts.add_row(
-                [k, v['Address'], v['Phone'], v['Email'], v['Birthday']])
-        return pretty_contacts
+        list_info = list()
+
+        result = session.query(Contact).options(joinedload('phones_rel'), joinedload('birthdays_rel'),
+                     joinedload('address_rel'), joinedload('emails_rel')).all()
+
+        for name in result:
+            list_info.append(name.name)
+            if name.address_rel:
+                for address in name.address_rel:
+                    list_info.append(address.address)
+            else:
+                list_info.append("")
+            for phone in name.phones_rel:
+                list_info.append(phone.phone)
+            if name.emails_rel:
+                for email in name.emails_rel:
+                    list_info.append(email.email)
+            else:
+                list_info.append("")
+            for birthday in name.birthdays_rel:
+                list_info.append(birthday.birthday)
+            pretty_contacts.add_row(list_info)
+            list_info = list()
+        return pretty_contacts    
 
 
 class AllNoteTags(InfoInterface):
@@ -77,16 +96,16 @@ def add_contact():
     birthday = input('Enter Birthday in format 01.01.1990: ')
     if AB.validate_birthday(birthday) and AB.validate_phone(phone):
 
-        # добавлем нового пользователя в книгу записей
-        contact = Contact(name=name, birthday=birthday)
-        contact_phone = Phone(phone=phone)
-
-
+        contact = Contact(name=name)
         session.add(contact)
-        session.add(contact_phone)
         session.commit()
-
-
+        result = session.query(Contact.contact_id).filter(Contact.name==name).first()
+        contact_birthday = Birthday(contact_id = result.contact_id, birthday=birthday)
+        contact_phone = Phone(contact_id = result.contact_id, phone=phone)
+        session.add(contact_phone)
+        session.add(contact_birthday)
+        session.commit()
+              
         AB.add_contact(name, phone, birthday)
         return f'Contact {name} with phone number {phone} and birthday {birthday} created.'
     else:
@@ -95,50 +114,96 @@ def add_contact():
 
 def add_email():
     name = input('Enter Name: ')
-    if not AB.contacts.get(name):
-        return f'Contact {name} does not exist!'
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found" 
+    
+
+
+
     email = input('Enter Email: ')
     if AB.validate_email(email):
-        contact_email = Email(email=email)
-        session.add(contact_email)
-        session.commit()
-        AB.add_email(name, email)
-        return f'{name}`s email {email} has been saved'
+        if result : 
+            
+            contact_email = Email(contact_id = id, email=email)
+            session.add(contact_email)
+            session.commit()
+          
+            return f'{name}`s email {email} has been saved'
     else:
         return f'Incorrect email'
 
 
 def add_address():
     name = input('Enter Name: ')
-    if not AB.contacts.get(name):
-        return f'Contact {name} does not exist!'
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found"  
     address = input('Enter Address: ')
-    AB.add_address(name, address)
+    contact_address = Address(contact_id = id, address=address)
+    session.add(contact_address)
+    session.commit()
     return f'{name}`s address is {address}'
 
 
 def add_birthday():
     name = input('Enter Name: ')
-    if not AB.contacts.get(name):
-        return f'Contact {name} does not exist!'
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found" 
     birthday = input('Enter Birthday in format 01.01.1990: ')
     print(birthday)
     if AB.validate_birthday(birthday):
-        AB.add_birthday(name, birthday)
+        
+        session.query(Birthday).filter(Birthday.contact_id==id).\
+                update({Birthday.birthday : birthday}, synchronize_session=False)
+        session.commit()
+       
         return f'{name}`s birthday {birthday} has been saved'
     else:
         return f'Incorrect date'
 
 
 def change_contact():
+    
     name = input('Enter Name: ')
-    if not AB.contacts.get(name):
-        return f'Contact {name} does not exist!'
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found" 
+    
     address = input('Enter Address: ')
     phone = input('Enter Phone number: ')
     email = input('Enter Email: ')
     birthday = input('Enter Birthday: ')
+
     if AB.validate_birthday(birthday) and AB.validate_email(email) and AB.validate_phone(phone):
+        
+        if session.query(Address.address).filter(Address.contact_id==id):
+            session.query(Address).filter(Address.contact_id==id).\
+                        update({Address.address : address}, synchronize_session=False)
+
+        if session.query(Phone).filter(Phone.contact_id==id):
+            session.query(Phone).filter(Phone.contact_id==id).\
+                        update({Phone.phone : phone}, synchronize_session=False)
+
+        if session.query(Email).filter(Email.contact_id==result.id):
+            session.query(Email).filter(Email.contact_id==result.id).\
+                        update({Email.email : email}, synchronize_session=False)
+
+        if session.query(Birthday).filter(Birthday.contact_id==result.id):
+            session.query(Birthday).filter(Birthday.contact_id==result.id).\
+                        update({Birthday.birthday : birthday}, synchronize_session=False)
+
+        session.commit()
+
         AB.change_contact(name, address, phone, email, birthday)
         return f'{name}`s :\n Address: {address}, Phone: {phone}, Email: {email}, Birthday: {birthday}'
     else:
@@ -146,15 +211,54 @@ def change_contact():
 
 
 def find_contact():
-    return AB.search(input('Enter contact info: '))
+    name = input('Enter Name of the contact: ')
+    
+    pretty_contact = PrettyTable()
+    pretty_contact.field_names = ['Name', 'Address', 'Phone', 'Email', 'Birthday']
+    
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found" 
+   
+    email=["",]
+    address=["",]
 
+    if result : 
+        name = result.name
+        
+        if session.query(Address.address).filter(Address.contact_id==id).first():
+            address = session.query(Address.address).filter(Address.contact_id==id).first()
+        
+        phone = session.query(Phone.phone).filter(Phone.contact_id==id).first()
+        
+        if session.query(Email.email).filter(Email.contact_id==id).first():
+            email = session.query(Email.email).filter(Email.contact_id==id).first()
+        
+        birthday = session.query(Birthday.birthday).filter(Birthday.contact_id==id).first()
+        
+        pretty_contact.add_row([name, address[0], phone[0], email[0], birthday[0]])
+
+    return pretty_contact
+         
 
 def delete_contact():
     name = input('Enter Name of the contact: ')
-    if not AB.contacts.get(name):
-        return f'Contact {name} does not exist!'
-    AB.delete_contact(name)
-    return f'Contact {name} was deleted!'
+    try:
+        result = session.query(Contact).filter(Contact.name==name).first()
+        id = result.contact_id
+    except:
+        return f"This {name} contact not found" 
+    
+    
+
+    if result : 
+        result = session.query(Contact).get(id) 
+        session.delete(result)
+        session.commit()
+
+        return f'Contact {name} was deleted!'
 
 
 def create_new_note():
@@ -426,8 +530,7 @@ def get_handler(operator):
 
 if __name__ == '__main__':
     # Start of the cli
-    if os.path.exists('data.json'):
-        AB.deserialize()
+
     print('Hello, User! Welcome to our CLI-bot. Enter "help" in case you need to see the commands again')
     print(Help.print_info())
 
@@ -438,9 +541,11 @@ if __name__ == '__main__':
             break
 
         if command == '.' or command == 'exit' or command == 'close':
-            AB.serialize()
+            
             print('Goodbye, User!')
             break
         handler = get_handler(command)
         answer = handler()
         print(answer)
+
+
