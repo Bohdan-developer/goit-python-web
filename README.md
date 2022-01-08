@@ -1,3 +1,3 @@
 # goit-python-web
 
-Homewokr python web
+Homework python web
