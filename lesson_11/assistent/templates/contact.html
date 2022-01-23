@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<p>
+ <h3>Contact name:</h3>
+ {{contact.name}}
+ <h3>Contact phone</h3>
+ {{contact.phone}}
+ <h3>Contact birthday</h3>
+ {{contact.birthday}}
+ <h3>Contact address</h3>
+ {{contact.address}}
+ <h3>Contact email</h3>
+ {{contact.email}}
+</p>
+<h4>Want to delete?</h4>
+<a href="{{ url_for('contacts.delete_contact', contact_id=contact.id) }}">Delete</a>
+<h4>Want to make some changes?</h4>
+<a href="{{ url_for('contacts.update_contact', contact_id=contact.id) }}">Update</a>
+<h4>Want to send to your mail?</h4>
+<a href="{{ url_for('contacts.send_email', contact_id=contact.id) }}">Send email</a>
+{% endblock %}
