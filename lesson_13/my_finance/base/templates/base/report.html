@@ -1,0 +1,45 @@
+{% extends "base/base.html" %}
+{{ title }}
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+    <h2>All your expenses and incomes are shown here </h2><br>
+    <div>
+        <h3>Expenses</h3>
+        <a href="{% url 'report_filter' filter_btn='day_costs' %}"><button>Day</button></a>
+        <a href="{% url 'report_filter' filter_btn='month_costs' %}"><button>Month</button></a>
+        <a href="{% url 'report_filter' filter_btn='all_costs' %}"><button>All</button></a>
+    </div>
+    <br>
+    <div>
+        <h3>Incomes</h3>
+        <a href="{% url 'report_filter' filter_btn='day_income' %}"><button>Day</button></a>
+        <a href="{% url 'report_filter' filter_btn='month_income' %}"><button>Month</button></a>
+        <a href="{% url 'report_filter' filter_btn='all_income' %}"><button>All</button></a>
+    </div>
+    <br>
+    {% if costs %}
+    <h2>{{ filter }}: {{ sum_costs }} $</h2>
+        <br>
+        {% for cost in costs %}
+            <div class="alert alert-warning mt-2">
+                <p>{{ cost.category }}</p>
+                <p>{{ cost.list }}: {{ cost.costs }} $</p>
+                <p>{{ cost.date }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if income %}
+    <h2>{{ filter }}: {{ sum_income }} $</h2>
+        {% for el in income %}
+            <div class="alert alert-warning mt-2">
+                <p>{{ el.category }}</p>
+                <p>{{ el.list }}: {{ el.income }} $</p>
+                <p>{{ el.date }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

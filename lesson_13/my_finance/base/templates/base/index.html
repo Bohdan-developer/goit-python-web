@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+{{ title }}
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome</h1>
+    <h2>All your expenses and incomes are shown here </h2><br>
+
+    <h2>Costs:</h2>
+    {% if costs %}
+        {% for cost in costs %}
+            <div class="alert alert-warning mt-2">
+                <p>{{ cost.category }}</p>
+                <p>{{ cost.list }}: {{ cost.costs }} $</p>
+                <p>{{ cost.date }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p> This is empty</p>
+    {% endif %}
+    <br>
+    <h2>Income:</h2>
+    {% if income %}
+        {% for el in income %}
+            <div class="alert alert-warning mt-2">
+                <p>{{ el.category }}</p>
+                <p>{{ el.list }}: {{ el.income }} $</p>
+                <p>{{ el.date }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p> This is empty</p>
+    {% endif %}
+{% endblock %}

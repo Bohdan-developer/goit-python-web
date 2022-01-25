@@ -1,0 +1,40 @@
+{% extends "base/base.html" %}
+{{ title }}
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+
+<h2>On this page you can add your expenses and income</h2>
+<br>
+    <h3> Add expenses please</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form_costs.category }}
+
+        {{ form_costs.list }}
+
+        {{ form_costs.costs }}
+
+        {{ form_costs.date }}
+
+        <button type="submit" class="btn btn-success">Add</button>
+    </form><br>
+
+    <h3> Add income please</h3>
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form_income.category }}
+
+        {{ form_income.list }}
+
+        {{ form_income.income }}
+
+        {{ form_income.date }}
+
+        <button type="submit" class="btn btn-success">Add</button>
+    </form>
+
+{% endblock %}
