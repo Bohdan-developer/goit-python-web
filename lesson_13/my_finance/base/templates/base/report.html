@@ -1,7 +1,6 @@
 {% extends "base/base.html" %}
 {{ title }}
 {% block title %}
-
 {% endblock %}
 
 {% block content %}
@@ -9,16 +8,32 @@
     <div>
         <h3>Expenses</h3>
         <a href="{% url 'report_filter' filter_btn='day_costs' %}"><button>Day</button></a>
+        <a href="{% url 'report_filter' filter_btn='week_costs' %}"><button>Week</button></a>
         <a href="{% url 'report_filter' filter_btn='month_costs' %}"><button>Month</button></a>
         <a href="{% url 'report_filter' filter_btn='all_costs' %}"><button>All</button></a>
     </div>
     <br>
+    <form method="post" action="daterange_filter_costs">
+        {% csrf_token %}
+        {{ form.start }}
+        {{ form.end }}
+        <button type="submit">Search</button>
+    </form>
+    <br>
     <div>
         <h3>Incomes</h3>
         <a href="{% url 'report_filter' filter_btn='day_income' %}"><button>Day</button></a>
+        <a href="{% url 'report_filter' filter_btn='week_income' %}"><button>Week</button></a>
         <a href="{% url 'report_filter' filter_btn='month_income' %}"><button>Month</button></a>
         <a href="{% url 'report_filter' filter_btn='all_income' %}"><button>All</button></a>
     </div>
+    <br>
+    <form method="post" action="daterange_filter_income">
+        {% csrf_token %}
+        {{ form.start }}
+        {{ form.end }}
+        <button type="submit">Search</button>
+    </form>
     <br>
     {% if costs %}
     <h2>{{ filter }}: {{ sum_costs }} $</h2>
